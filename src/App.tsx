@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import MapComponent from './Map';
-import ChosenMarkerInfo from './ChosenMarkerInfo';
+import { useState } from 'react';
+import MapComponent from './components/Map';
+import ChosenMarkerInfo from './components/ChosenMarkerInfo';
 import './App.css';
 
-function App() {
-  const [chosenMarkerInfo, setChosenMarkerInfo] = useState(null);
+const App: React.FC = () => {
+  const [chosenMarkerInfo, setChosenMarkerInfo] = useState<{ label: string; location: { lat: number; lng: number } } | null>(null);
 
   return (
     <div className="App">
