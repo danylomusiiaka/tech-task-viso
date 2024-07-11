@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import MarkerList from './MarkerList';
+import { firestore } from '../firebase';
+import { addDoc, collection, deleteDoc, getDocs, query, orderBy, updateDoc, doc } from 'firebase/firestore';
 
 interface MarkerInfo {
     id: number;
     position: { lat: number; lng: number };
+    timestamp: string;
+    nextObjectRef: any;
 }
 
 interface MapComponentProps {
@@ -15,6 +19,8 @@ const containerStyle = {
     width: '100%',
     height: '400px'
 };
+
+const ref = collection(firestore, "markers");
 
 const MapComponent: React.FC<MapComponentProps> = ({ onMarkerClick }) => {
     const [currentPosition, setCurrentPosition] = useState({ lat: 0, lng: 0 });
@@ -27,39 +33,109 @@ const MapComponent: React.FC<MapComponentProps> = ({ onMarkerClick }) => {
                 lng: position.coords.longitude
             });
         });
+        fetchMarkers();
     }, []);
 
-    const handleMapClick = (event: google.maps.MapMouseEvent) => {
+    const fetchMarkers = async () => {
+        const querySnapshot = await getDocs(query(ref, orderBy('id', 'asc')));
+        const fetchedMarkers: MarkerInfo[] = [];
+        querySnapshot.forEach((doc) => {
+            const markerData = doc.data() as MarkerInfo;
+            fetchedMarkers.push({
+                id: markerData.id,
+                position: markerData.position,
+                timestamp: markerData.timestamp,
+                nextObjectRef: doc.ref
+            });
+        });
+        setMarkers(fetchedMarkers);
+    };
+
+    const mapClick = async (event: google.maps.MapMouseEvent) => {
         const newMarker = {
             id: markers.length + 1,
             position: {
                 lat: event.latLng?.lat() || 0,
                 lng: event.latLng?.lng() || 0
-            }
+            },
+            timestamp: new Date().toISOString(),
+            nextObjectRef: null
         };
-        setMarkers((current) => [...current, newMarker]);
+
+        if (markers.length > 0) {
+            const lastIndex = markers.length - 1;
+            const lastMarker = markers[lastIndex];
+            const updatedLastMarker = { ...lastMarker, nextObjectRef: newMarker };
+            await updateDoc(lastMarker.nextObjectRef, updatedLastMarker);
+        }
+
+        const docRef = await addDoc(ref, newMarker);
+
+        setMarkers((currentMarkers) => [...currentMarkers, { ...newMarker, nextObjectRef: docRef }]);
     };
 
-    const handleMarkerClick = (marker: MarkerInfo) => {
+
+    const markerClick = (marker: MarkerInfo) => {
         onMarkerClick({ label: `Quest ${marker.id}`, location: marker.position });
     };
 
-    const handleMarkerDragEnd = (event: google.maps.MapMouseEvent, marker: MarkerInfo) => {
-        const updatedMarkers = markers.map((m) =>
-            m.id === marker.id
-                ? { ...m, position: { lat: event.latLng?.lat() || 0, lng: event.latLng?.lng() || 0 } }
-                : m
-        );
+    const markerMoving = async (event: google.maps.MapMouseEvent, marker: MarkerInfo) => {
+        const updatedMarkers = markers.map((m,index) => {
+            if (m.id === marker.id) {
+                const updatedMarker = {
+                    ...m,
+                    position: {
+                        lat: event.latLng?.lat() || m.position.lat,
+                        lng: event.latLng?.lng() || m.position.lng
+                    }
+                };
+
+                updateDoc(marker.nextObjectRef, {
+                    position: updatedMarker.position
+                })
+
+                if (index > 0) {
+                    const prevMarker = markers[index - 1];
+                    updateDoc(prevMarker.nextObjectRef, {
+                        nextObjectRef: { position: updatedMarker.position }
+                    })
+                }
+
+                return updatedMarker;
+            }
+            return m;   
+        });
+
         setMarkers(updatedMarkers);
     };
 
-    const handleDeleteLatest = () => {
-        setMarkers((current) => current.slice(0, -1));
+
+
+
+    const deleteLatest = async () => {
+        if (markers.length === 0) return;
+
+        const lastMarker = markers[markers.length - 1];
+
+        const markerDocRef = doc(firestore, "markers", lastMarker.id.toString());
+
+        await deleteDoc(markerDocRef);
+
+        setMarkers((currentMarkers) => currentMarkers.slice(0, -1));
     };
 
-    const handleDeleteAll = () => {
+    const deleteAll = async () => {
+
+        const querySnapshot = await getDocs(query(ref));
+
+        querySnapshot.forEach(async (doc) => {
+            await deleteDoc(doc.ref);
+        });
+
+
         setMarkers([]);
     };
+
 
     return (
         <div className='map-container'>
@@ -69,7 +145,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ onMarkerClick }) => {
                     mapContainerStyle={containerStyle}
                     center={currentPosition}
                     zoom={10}
-                    onClick={handleMapClick}
+                    onClick={mapClick}
                 >
                     {markers.map((marker) => (
                         <Marker
@@ -77,19 +153,19 @@ const MapComponent: React.FC<MapComponentProps> = ({ onMarkerClick }) => {
                             position={{ lat: marker.position.lat, lng: marker.position.lng }}
                             label={`Quest ${marker.id}`}
                             draggable={true}
-                            onDragEnd={(e) => handleMarkerDragEnd(e, marker)}
-                            onClick={() => handleMarkerClick(marker)}
+                            onDragEnd={(e) => markerMoving(e, marker)}
+                            onClick={() => markerClick(marker)}
                         />
                     ))}
                 </GoogleMap>
             </LoadScript>
             <div className='controls'>
-                <button onClick={handleDeleteLatest}>Delete Latest Marker</button>
-                <button onClick={handleDeleteAll}>Delete All Markers</button>
+                <button onClick={deleteLatest}>Delete Latest Marker</button>
+                <button onClick={deleteAll}>Delete All Markers</button>
             </div>
-            <div>
-                <MarkerList markers={markers} />
-            </div>
+
+            <MarkerList markers={markers} />
+
         </div>
     );
 };

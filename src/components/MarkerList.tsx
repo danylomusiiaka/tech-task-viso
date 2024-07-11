@@ -19,7 +19,7 @@ const MarkerList: React.FC<MarkerListProps> = ({ markers }) => {
                 <>
                     <h2>Marker List</h2>
                     <ul>
-                        {markers.slice().reverse().map((marker) => ( // Reversing the array before mapping
+                        {markers.slice().reverse().map((marker) => ( 
                             <li key={marker.id}>
                                 <strong>{`Quest ${marker.id}`}</strong> <br />
                                 <strong>Location:</strong> Lat: {marker.position.lat}, Lng: {marker.position.lng}
