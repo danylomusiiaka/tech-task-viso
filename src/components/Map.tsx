@@ -15,6 +15,8 @@ interface MapComponentProps {
     onMarkerClick: (markerInfo: { label: string; location: { lat: number; lng: number } }) => void;
 }
 
+
+
 const containerStyle = {
     width: '100%',
     height: '400px'
@@ -80,7 +82,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ onMarkerClick }) => {
     };
 
     const markerMoving = async (event: google.maps.MapMouseEvent, marker: MarkerInfo) => {
-        const updatedMarkers = markers.map((m,index) => {
+        const updatedMarkers = markers.map((m, index) => {
             if (m.id === marker.id) {
                 const updatedMarker = {
                     ...m,
@@ -103,7 +105,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ onMarkerClick }) => {
 
                 return updatedMarker;
             }
-            return m;   
+            return m;
         });
 
         setMarkers(updatedMarkers);
@@ -140,7 +142,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ onMarkerClick }) => {
     return (
         <div className='map-container'>
             <h1>Viso Google Map</h1>
-            <LoadScript googleMapsApiKey="AIzaSyA4EwwYyOHTV4RpBu64EmP5Yoz62r2yAWQ">
+            <LoadScript googleMapsApiKey={import.meta.env.VITE_REACT_APP_API_KEY}>
                 <GoogleMap
                     mapContainerStyle={containerStyle}
                     center={currentPosition}
