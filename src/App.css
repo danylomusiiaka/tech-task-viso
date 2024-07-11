@@ -1,0 +1,42 @@
+.App {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  display: flex;
+}
+
+.map-container {
+  flex: 1
+}
+
+.chosen-marker-info {
+  flex: 1;
+  padding: 20px
+}
+
+.marker-list {
+  padding: 20px
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.25s;
+  margin-right: 10px;
+}
+
+button:hover {
+  border-color: #646cff;
+}
+
+button:active {
+  background-color: rgb(206, 205, 205);
+}
+
+.controls {
+  margin-top: 10px;
+}
+
