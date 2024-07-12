@@ -1,15 +1,24 @@
 .App {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   display: flex;
+  flex-direction: row;
 }
 
 .map-container {
-  flex: 1
+  flex: 1;
+  flex-direction: row;
 }
 
 .chosen-marker-info {
   flex: 1;
-  padding: 20px
+  padding: 20px;
+  flex-direction: row;
+}
+
+@media (max-width: 768px) {
+  .App {
+      flex-direction: column;
+    }
 }
 
 .marker-list {
