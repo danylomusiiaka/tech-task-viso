@@ -15,8 +15,6 @@ interface MapComponentProps {
     onMarkerClick: (markerInfo: { label: string; location: { lat: number; lng: number } }) => void;
 }
 
-
-
 const containerStyle = {
     width: '100%',
     height: '400px'
@@ -110,9 +108,6 @@ const MapComponent: React.FC<MapComponentProps> = ({ onMarkerClick }) => {
 
         setMarkers(updatedMarkers);
     };
-
-
-
 
     const deleteLatest = async () => {
         if (markers.length === 0) return;

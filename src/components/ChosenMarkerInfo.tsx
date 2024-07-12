@@ -12,8 +12,9 @@ const ChosenMarkerInfo: React.FC<ChosenMarkerInfoProps> = ({ chosenMarkerInfo })
                 <>
                     <div>
                         <h2>Marker Info:</h2>
-                        <p><strong>{chosenMarkerInfo.label}</strong></p>
-                        <p><strong>Location:</strong> Lat: {chosenMarkerInfo.location.lat}, Lng: {chosenMarkerInfo.location.lng}</p>
+                        <h3>{chosenMarkerInfo.label}</h3>
+                        <h3>Location: </h3>
+                        <p>Lat: {chosenMarkerInfo.location.lat}, Lng: {chosenMarkerInfo.location.lng}</p>
                     </div>
                 </>
             ) : (

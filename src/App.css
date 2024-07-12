@@ -35,6 +35,7 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
   margin-right: 10px;
+  margin-bottom: 5px;
 }
 
 button:hover {
@@ -49,3 +50,6 @@ button:active {
   margin-top: 10px;
 }
 
+h3, p {
+  margin: 0;
+}
