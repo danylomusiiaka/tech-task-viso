@@ -113,13 +113,11 @@ const MapComponent: React.FC<MapComponentProps> = ({ onMarkerClick }) => {
         if (markers.length === 0) return;
 
         const lastMarker = markers[markers.length - 1];
-
-        const markerDocRef = doc(firestore, "markers", lastMarker.id.toString());
-
-        await deleteDoc(markerDocRef);
+        await deleteDoc(lastMarker.nextObjectRef);
 
         setMarkers((currentMarkers) => currentMarkers.slice(0, -1));
     };
+
 
     const deleteAll = async () => {
 
