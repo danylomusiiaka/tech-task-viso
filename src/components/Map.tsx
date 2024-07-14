@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import MarkerList from './MarkerList';
 import { firestore } from '../firebase';
-import { addDoc, collection, deleteDoc, getDocs, query, orderBy, updateDoc, doc } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, getDocs, query, orderBy, updateDoc } from 'firebase/firestore';
 
 interface MarkerInfo {
     id: number;
